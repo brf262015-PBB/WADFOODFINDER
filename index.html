@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodFinder - Buyers are King 👑</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container">
+
+        <div id="modeSelection" class="panel">
+            <h1>🍽️ FoodFinder</h1>
+            <p class="subtitle">👑 FoodFinder — Premium Chat Platform</p>
+            <div class="mode-buttons">
+                <button class="mode-btn customer" onclick="masukSebagaiCustomer()">
+                    <span>👤</span>
+                    <div class="btn-label">Customer</div>
+                </button>
+                <button class="mode-btn vendor" onclick="tampilkanVendorLogin()">
+                    <span>🏪</span>
+                    <div class="btn-label">Vendor Login</div>
+                </button>
+                <button class="mode-btn admin" onclick="tampilkanAdminPanel()">
+                    <span>⚙️</span>
+                    <div class="btn-label">Admin</div>
+                </button>
+            </div>
+        </div>
+
+        <div id="vendorLogin" class="panel">
+            <h2>Vendor Login</h2>
+            <p class="subtitle">Enter your credentials to access the vendor panel</p>
+            <div id="loginError" class="msg-error" style="display:none"></div>
+            <div class="form-group"><label>Username</label><input type="text" id="vendorUsername" placeholder="Enter username"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="vendorPassword" placeholder="Enter password"></div>
+            <button class="btn-gold" onclick="loginVendor()">Login</button>
+            <button class="btn-back" onclick="kembaliKeMode()">← Back to Menu</button>
+        </div>
+
+        <!-- Vendor: pilih room customer -->
+        <div id="vendorRoomList" class="panel" style="display:none; padding:30px; max-width:480px; width:100%; max-height:85vh; overflow-y:auto;">
+            <h2 style="font-family:var(--font-serif);font-size:26px;color:var(--burgundy);text-align:center;margin-bottom:6px">🏪 Customer Rooms</h2>
+            <p class="subtitle" style="text-align:center;margin-bottom:20px">Pilih room customer untuk masuk dan offer menu</p>
+            <div id="roomListContainer" style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+                <p class="loading-txt">Memuat daftar customer aktif...</p>
+            </div>
+            <button id="refreshRoomsBtn" onclick="muatRoomList()" class="btn-gold" style="margin-bottom:10px">🔄 Refresh Daftar</button>
+            <button class="btn-back" onclick="kembaliKeMode()">← Logout</button>
+        </div>
+
+        <div id="adminPanel" class="panel">
+            <h2>⚙️ Admin Panel</h2>
+            <div class="admin-section">
+                <h3>Add New Vendor</h3>
+                <div id="adminError" class="msg-error" style="display:none"></div>
+                <div id="adminSuccess" class="msg-success" style="display:none"></div>
+                <form id="addVendorForm">
+                    <div class="form-group"><label>Vendor Name</label><input type="text" id="newVendorName" placeholder="e.g., Le Gourmet Restaurant" required></div>
+                    <div class="form-group">
+                        <label>Emoji Icon</label>
+                        <select id="newVendorEmoji" required>
+                            <option value="" disabled selected>Select an icon</option>
+                            <option value="🍽️">🍽️ Restaurant</option>
+                            <option value="🍜">🍜 Noodles</option>
+                            <option value="☕">☕ Coffee</option>
+                            <option value="🍛">🍛 Curry</option>
+                            <option value="🥐">🥐 Bakery</option>
+                            <option value="🍕">🍕 Pizza</option>
+                            <option value="🍔">🍔 Burger</option>
+                            <option value="🍣">🍣 Sushi</option>
+                            <option value="🥗">🥗 Salad</option>
+                            <option value="🍰">🍰 Dessert</option>
+                            <option value="🥤">🥤 Drink</option>
+                            <option value="🍱">🍱 Bento</option>
+                            <option value="🌮">🌮 Taco</option>
+                            <option value="🍝">🍝 Pasta</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Username</label><input type="text" id="newVendorUsername" placeholder="e.g., legourmet" required></div>
+                    <div class="form-group"><label>Password</label><input type="password" id="newVendorPassword" placeholder="Create a password" required></div>
+                    <button type="submit" class="btn-gold">Add Vendor</button>
+                </form>
+            </div>
+            <div class="admin-section">
+                <h3>Registered Vendors</h3>
+                <div id="vendorListAdmin" class="vendor-list">
+                    <p class="loading-txt">Loading vendors...</p>
+                </div>
+            </div>
+            <button class="btn-back" onclick="kembaliKeMode()">← Back to Menu</button>
+        </div>
+
+        <div id="chatContainer">
+            <div class="chat-header" id="chatHeader">
+                <div class="header-info">
+                    <div>
+                        <h2 id="headerTitle">FoodFinder Chat</h2>
+                        <p id="headerSubtitle">Online</p>
+                    </div>
+                    <span id="notifBadge">0</span>
+                </div>
+                <button id="backToRoomsBtn" onclick="tampilkanRoomList()" style="display:none">🏠 Rooms</button>
+                <button class="btn-back-chat" onclick="kembaliKeMode()">← Logout</button>
+            </div>
+            <div id="chatlog"></div>
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Type your message or order...">
+                <button id="sendBtn" onclick="kirimPesan()">➤</button>
+            </div>
+            <!-- Customer action bar -->
+            <div class="customer-actions" id="customerActions" style="display:none">
+                <button id="trackOrderBtn" onclick="bukaTrackerPanel()">
+                    📦 My Orders
+                    <span id="trackOrderBadge">0</span>
+                </button>
+            </div>
+            <!-- Vendor action bar -->
+            <div class="vendor-actions" id="vendorActions" style="display:none">
+                <button id="manageMenuBtn" onclick="bukaManagementPanel()">📋 Menu</button>
+                <button id="showMenuBtn" onclick="bukaShowMenuModal()">📤 Show</button>
+                <button id="viewOrdersBtn" onclick="bukaOrdersPanel()">📦 Orders</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Menu Management -->
+    <div id="managementModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3>📋 My Menu Management</h3>
+                <button class="btn-close-modal" onclick="tutupModal('managementModal')">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <button onclick="bukaFormMenu(null)" class="btn-gold" style="width:100%;margin-bottom:20px">➕ Add New Menu Item</button>
+                <h4 style="font-family:var(--font-serif);font-size:20px;margin-bottom:15px">My Menu Items</h4>
+                <div id="menuListContainer" class="menu-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu Add/Edit Form -->
+    <div id="menuFormModal" class="modal">
+        <div class="modal-box sm">
+            <div class="modal-head">
+                <h3 id="formTitle">➕ Add New Menu</h3>
+                <button class="btn-close-modal" onclick="tutupModal('menuFormModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="menuForm">
+                    <div class="form-group"><label>Menu Name</label><input type="text" id="namaMenu" placeholder="e.g., Wagyu Steak" required></div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="kategoriMenu" required>
+                            <option value="makanan">🍛 Main Course</option>
+                            <option value="minuman">🥤 Beverages</option>
+                            <option value="snack">🍿 Appetizers</option>
+                            <option value="dessert">🍰 Desserts</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Price (Rp)</label><input type="number" id="hargaMenu" placeholder="25000" required></div>
+                    <div class="form-group"><label>Description</label><textarea id="deskripsiMenu" rows="3" placeholder="Describe your menu item..." required></textarea></div>
+                    <div class="form-group"><label>Image URL</label><input type="url" id="gambarMenu" placeholder="https://..." required></div>
+                    <div class="form-group">
+                        <label>Variant Options (optional)</label>
+                        <div id="opsiContainer" class="option-inputs">
+                            <div class="option-row">
+                                <input type="text" class="opsi-input" placeholder="e.g., Spicy">
+                                <button type="button" class="btn-rm-opt" onclick="hapusOpsi(this)" style="display:none">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-opt" onclick="tambahInputOpsi()">+ Add Option</button>
+                    </div>
+                    <div class="modal-btns">
+                        <button type="button" class="btn-cancel" onclick="tutupModal('menuFormModal')">Cancel</button>
+                        <button type="submit" class="btn-submit">Save Menu</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show Menu -->
+    <div id="showMenuModal" class="modal">
+        <div class="modal-box md">
+            <div class="modal-head">
+                <h3>📤 Select Menu to Display</h3>
+                <button class="btn-close-modal" onclick="tutupModal('showMenuModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:var(--g-dark);margin-bottom:15px;font-size:13px">Choose a menu item to display to customers in the chat</p>
+                <div id="showMenuListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Vendor -->
+    <div id="editVendorModal" class="modal">
+        <div class="modal-box sm">
+            <div class="modal-head">
+                <h3>✏️ Edit Vendor</h3>
+                <button class="btn-close-modal" onclick="tutupModal('editVendorModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div id="editVendorError" class="msg-error" style="display:none"></div>
+                <div id="editVendorSuccess" class="msg-success" style="display:none"></div>
+                <form id="editVendorForm">
+                    <input type="hidden" id="editVendorId">
+                    <div class="form-group"><label>Vendor Name</label><input type="text" id="editVendorName" required></div>
+                    <div class="form-group">
+                        <label>Emoji Icon</label>
+                        <select id="editVendorEmoji" required>
+                            <option value="" disabled>Select an icon</option>
+                            <option value="🍽️">🍽️ Restaurant</option>
+                            <option value="🍜">🍜 Noodles</option>
+                            <option value="☕">☕ Coffee</option>
+                            <option value="🍛">🍛 Curry</option>
+                            <option value="🥐">🥐 Bakery</option>
+                            <option value="🍕">🍕 Pizza</option>
+                            <option value="🍔">🍔 Burger</option>
+                            <option value="🍣">🍣 Sushi</option>
+                            <option value="🥗">🥗 Salad</option>
+                            <option value="🍰">🍰 Dessert</option>
+                            <option value="🥤">🥤 Drink</option>
+                            <option value="🍱">🍱 Bento</option>
+                            <option value="🌮">🌮 Taco</option>
+                            <option value="🍝">🍝 Pasta</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Username</label><input type="text" id="editVendorUsername" required></div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="editVendorPassword" placeholder="Leave blank to keep current">
+                        <small style="color:var(--g-dark);font-size:11px">Leave blank to keep current password</small>
+                    </div>
+                    <div class="modal-btns">
+                        <button type="button" class="btn-cancel" onclick="tutupModal('editVendorModal')">Cancel</button>
+                        <button type="submit" class="btn-submit">Update Vendor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Checkout -->
+    <div id="checkoutModal" class="modal">
+        <div class="modal-box sm">
+            <div class="modal-head">
+                <h3>📋 Customer Information</h3>
+                <button class="btn-close-modal" onclick="tutupModal('checkoutModal')">✕</button>
+            </div>
+            <div class="modal-body">
+                <form id="checkoutForm">
+                    <div class="form-group"><label>Full Name</label><input type="text" id="customerName" placeholder="Enter your name" required></div>
+                    <div class="form-group"><label>Phone Number</label><input type="tel" id="customerPhone" placeholder="08xxxxxxxxxx" required></div>
+                    <div class="form-group"><label>Delivery Address</label><textarea id="customerAddress" rows="3" placeholder="Enter full address" required></textarea></div>
+                    <div class="form-group"><label>Notes (Optional)</label><textarea id="customerNotes" rows="2" placeholder="Special requests..."></textarea></div>
+                    <div class="modal-btns">
+                        <button type="button" class="btn-cancel" onclick="tutupModal('checkoutModal')">Cancel</button>
+                        <button type="submit" class="btn-submit">Place Order</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Orders Dashboard -->
+    <div id="ordersModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3>📦 Orders Dashboard</h3>
+                <button class="btn-close-modal" onclick="tutupOrdersPanel()">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <div id="ordersContainer">
+                    <p class="loading-txt">Loading orders...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Order Tracker Modal -->
+    <div id="trackerModal" class="modal">
+        <div class="modal-box">
+            <div class="modal-head">
+                <h3>📦 My Orders</h3>
+                <button class="btn-close-modal" onclick="tutupTrackerPanel()">✕ Close</button>
+            </div>
+            <div class="modal-body">
+                <div id="trackerContainer">
+                    <p class="loading-txt">Loading your orders...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="notifToast" role="alert" aria-live="polite">
+        <div class="toast-icon">🛒</div>
+        <div class="toast-body">
+            <div class="toast-title" id="toastTitle">🆕 New Order for You!</div>
+            <div class="toast-msg" id="toastMsg">Ada pesanan baru...</div>
+        </div>
+        <button class="toast-close" onclick="tutupToast()">✕</button>
+    </div>
+
+    <!-- Storage indicator badge -->
+    <div id="storageIndicator">🗄️ MySQL aktif</div>
+
+    <script src="app.js"></script>
+</body>
+</html>
